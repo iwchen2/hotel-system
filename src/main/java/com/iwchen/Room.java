@@ -25,7 +25,7 @@ public class Room {
   int occupancy;
   final int maxOccupancy;
 
-  public Room(RoomType roomType){
+  public Room(RoomType roomType, int roomNumber){
     this.roomType = roomType;
 
     switch (roomType) {
@@ -82,11 +82,11 @@ public class Room {
     this.isReserved = false;
     this.startDate = null;
     this.endDate = null;
-    /**
-    *TODO
-    *roomNumber
-    *occupancy
-    */
+    this.roomNumber = roomNumber;
+    this.occupancy = 0;
+  }
 
+  public RoomType getRoomType() {
+    return this.roomType;
   }
 }
