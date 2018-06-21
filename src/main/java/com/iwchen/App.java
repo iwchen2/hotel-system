@@ -28,7 +28,6 @@ public class App
 
     private static void printRooms (Hotel h) {
       Map<Integer, Room> rooms = h.getRoomListing();
-      System.out.println(rooms.size());
       System.out.println(Arrays.asList(rooms));
     }
 }
