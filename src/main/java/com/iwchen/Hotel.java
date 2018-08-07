@@ -8,10 +8,14 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class Hotel {
 
   private Map<Integer, Room> roomListing;
+
+  private static Logger logger = LogManager.getLogger(Hotel.class);
 
   public Hotel() {
     roomListing = new HashMap<Integer, Room>();
@@ -20,15 +24,22 @@ public class Hotel {
   public void bookRoom(int numPeople, Date start, Date end, Room.RoomType rType) {
 
     List<Room> availableRooms = getAvailableRooms(roomListing, rType);
+    if(availableRooms.isEmpty()){
+      logger.error(String.format("Error Reserving Room: No available rooms - ROOM NOT BOOKED"));
+      return;
+    }
 
     //Select a random room from available rooms
     int idx = new Random().nextInt(availableRooms.size());
     Room reservedRoom = availableRooms.get(idx);
+    if(reservedRoom.maxOccupancy < numPeople){
+      logger.error(String.format("Error Reserving Room: Room accomadates %d, while you require %d - ROOM NOT BOOKED", reservedRoom.maxOccupancy, numPeople));
+    }
     reservedRoom.isReserved = true;
     reservedRoom.occupancy = numPeople;
   }
 
-  private List<Room> getAvailableRooms(Map<Integer, Room> map, Room.RoomType rType) {
+  public List<Room> getAvailableRooms(Map<Integer, Room> map, Room.RoomType rType) {
     List<Room> availableRooms = new ArrayList<Room>();
 
     //Iterate through roomListing
@@ -36,12 +47,11 @@ public class Hotel {
     while (it.hasNext()) {
       Map.Entry pair = (Map.Entry)it.next();
       Room currRoom = (Room)pair.getValue();
-      System.out.println(pair.getKey() + ": " + currRoom.getRoomType());
 
       //Append matching roomtypes into availableRooms ArrayList
       if(currRoom.getRoomType() == rType && !currRoom.isReserved) {
         availableRooms.add(currRoom);
-        System.out.println(currRoom.roomNumber);
+        // System.out.println(currRoom.roomNumber);
       }
     }
     return availableRooms;
