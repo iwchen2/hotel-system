@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -32,6 +33,9 @@ public class HotelApp extends Application {
         Map rooms = hyattRegency.getRoomListing();
         createRooms(50, rooms);
 
+        //Create BorderPane layout
+        BorderPane border = new BorderPane();
+
         //Create GridPane as layout
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.TOP_CENTER);
@@ -40,11 +44,12 @@ public class HotelApp extends Application {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
         Text scenetitle = new Text("Hyatt Regency");
-        scenetitle.setFont(Font.font("Hack", FontWeight.NORMAL, 16));
-        grid.add(scenetitle, 0, 0, 2, 1);
+        scenetitle.setFont(Font.font("Hack", FontWeight.BOLD, 20));
+        border.setTop(scenetitle);
+        border.setAlignment(scenetitle, Pos.TOP_CENTER);
 
         Text bookRoom = new Text("Book Room");
-        bookRoom.setFont(Font.font("Hack", FontWeight.BOLD, 14));
+        bookRoom.setFont(Font.font("Hack", FontWeight.SEMI_BOLD, 14));
         grid.add(bookRoom, 0, 1, 2, 1);
 
         Label partySize = new Label("Number of People:");
@@ -57,9 +62,20 @@ public class HotelApp extends Application {
         grid.add(partySizeTextField, 1, 2);
         grid.add(roomTypeTextField, 1,3);
 
+        Button submitBook = new Button("Submit");
+        submitBook.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+            }
+        });
+
+        border.setCenter(grid);
+
         //Get all rooms of hotel
         Button getRoomBtn = new Button("Get All Rooms");
         HBox hbBtn = new HBox(10);
+        hbBtn.setPadding(new Insets(15, 12, 15, 12));
         getRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -67,12 +83,10 @@ public class HotelApp extends Application {
                 printRooms(hyattRegency);
             }
         });
-        hbBtn.setAlignment(Pos.CENTER_LEFT);
         hbBtn.getChildren().add(getRoomBtn);
-        grid.add(hbBtn, 0, 5);
+        border.setBottom(hbBtn);
 
-
-        Scene scene = new Scene(grid, 1024, 576);
+        Scene scene = new Scene(border, 1024, 576);
 
         primaryStage.setTitle("Hotel System");
         primaryStage.setScene(scene);
