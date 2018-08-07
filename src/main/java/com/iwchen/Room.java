@@ -89,4 +89,8 @@ public class Room {
   public RoomType getRoomType() {
     return this.roomType;
   }
+
+  public String toString() {
+    return String.format("%d %s Availability=%b", this.roomNumber, this.roomType, !this.isReserved);
+  }
 }
