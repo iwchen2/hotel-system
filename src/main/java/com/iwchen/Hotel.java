@@ -37,6 +37,7 @@ public class Hotel {
     }
     reservedRoom.isReserved = true;
     reservedRoom.occupancy = numPeople;
+    logger.info(String.format("Successfully booked room %d", reservedRoom.roomNumber));
   }
 
   public List<Room> getAvailableRooms(Map<Integer, Room> map, Room.RoomType rType) {
@@ -62,6 +63,32 @@ public class Hotel {
     checkedOutRoom.isReserved = false;
     checkedOutRoom.occupancy = 0;
 
+  }
+
+  public Room getRoom(int roomNumber) {
+    return roomListing.getOrDefault(roomNumber, null);
+  }
+
+  public List<Room> getRoom(Room.RoomType roomType, boolean availability) {
+    List<Room> rooms = new ArrayList<>();
+
+    //Iterate through roomListing
+    Iterator it = roomListing.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry pair = (Map.Entry) it.next();
+      Room currRoom = (Room) pair.getValue();
+
+      if(availability) {
+        if(currRoom.roomType == roomType && !currRoom.isReserved) {
+          rooms.add(currRoom);
+        }
+      }else{
+        if(currRoom.roomType == roomType) {
+          rooms.add(currRoom);
+        }
+      }
+    }
+    return rooms;
   }
 
   public Map<Integer, Room> getRoomListing() {
