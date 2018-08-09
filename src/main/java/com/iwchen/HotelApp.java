@@ -1,11 +1,13 @@
 package com.iwchen;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -20,8 +22,8 @@ public class HotelApp extends Application {
     public void start(Stage primaryStage) {
 
         //Create Hotel Object and populate with Rooms
-        Hotel hyattRegency = new Hotel();
-        Map rooms = hyattRegency.getRoomListing();
+        Hotel peninsula = new Hotel();
+        Map rooms = peninsula.getRoomListing();
         createRooms(100, rooms);
 
         //Create main BorderPane layout
@@ -32,6 +34,7 @@ public class HotelApp extends Application {
         mainGrid.setHgap(10);
         mainGrid.setVgap(10);
         mainGrid.setPadding(new Insets(25, 25, 25, 25));
+//        mainGrid.setStyle("-fx-background-color: #94b7ef;");
         mainBorder.setCenter(mainGrid);
 
         //Create search BorderPane
@@ -42,6 +45,7 @@ public class HotelApp extends Application {
         searchGrid.setHgap(10);
         searchGrid.setVgap(10);
         searchGrid.setPadding(new Insets(25, 25, 25, 25));
+//        searchGrid.setStyle("-fx-background-color: #94b7ef;");
         searchBorder.setCenter(searchGrid);
 
         //Create Lookup BorderPane
@@ -52,40 +56,58 @@ public class HotelApp extends Application {
         lookupGrid.setHgap(10);
         lookupGrid.setVgap(10);
         lookupGrid.setPadding(new Insets(25, 25, 25, 25));
+//        lookupGrid.setStyle("-fx-background-color: #94b7ef;");
         lookupBorder.setCenter(lookupGrid);
 
-        //Create new scene(default) and show primary stage
+        //Create checkout BorderPane
+        BorderPane checkoutBorder = new BorderPane();
+        //Create checkout GridPane
+        GridPane checkoutGrid = new GridPane();
+        checkoutGrid.setAlignment(Pos.TOP_CENTER);
+        checkoutGrid.setHgap(10);
+        checkoutGrid.setVgap(10);
+        checkoutGrid.setPadding(new Insets(25));
+        checkoutBorder.setCenter(checkoutGrid);
+
+        //Create main scene
         Scene mainScene = new Scene(mainBorder, 1024, 576);
-        Scene searchScene = new Scene(searchBorder, 1024, 576);
-        Scene lookupScene = new Scene(lookupBorder, 1024, 576);
-        Map<String, Scene> sceneMap = new HashMap<>();
-        sceneMap.put("main", mainScene);
-        sceneMap.put("search", searchScene);
-        sceneMap.put("lookup", lookupScene);
+
+        //Map of BorderPanes for easy lookup and reference
+        Map<String, BorderPane> borderMap = new HashMap<>();
+        borderMap.put("main", mainBorder);
+        borderMap.put("search", searchBorder);
+        borderMap.put("lookup", lookupBorder);
+        borderMap.put("checkout", checkoutBorder);
 
         //Add Title to scenes
         addTitle(mainBorder);
         addTitle(searchBorder);
         addTitle(lookupBorder);
+        addTitle(checkoutBorder);
 
         //Add Side Menu to scenes
-        addSideMenu(mainBorder, primaryStage, sceneMap);
-        addSideMenu(searchBorder, primaryStage, sceneMap);
-        addSideMenu(lookupBorder, primaryStage, sceneMap);
+        addSideMenu(mainBorder, mainScene, borderMap);
+        addSideMenu(searchBorder, mainScene, borderMap);
+        addSideMenu(lookupBorder, mainScene, borderMap);
+        addSideMenu(checkoutBorder, mainScene, borderMap);
 
         //Get all rooms of hotel
-        addFooter(mainBorder, hyattRegency);
-        addFooter(searchBorder, hyattRegency);
-        addFooter(lookupBorder, hyattRegency);
+        addFooter(mainBorder, peninsula);
+        addFooter(searchBorder, peninsula);
+        addFooter(lookupBorder, peninsula);
+        addFooter(checkoutBorder, peninsula);
 
         //Book room functionality
-        addBookRoom(mainGrid, hyattRegency);
+        addBookRoom(mainGrid, peninsula);
 
         //Search Rooms by type Functionality
-        addFindRoom(searchGrid, hyattRegency);
+        addFindRoom(searchGrid, peninsula);
 
         //Lookup Room Functionality
-        addLookupRoom(lookupGrid, hyattRegency);
+        addLookupRoom(lookupGrid, peninsula);
+
+        //Checkout Functionality
+        addCheckoutRoom(checkoutGrid, peninsula);
 
         primaryStage.setTitle("Hotel System");
         primaryStage.setScene(mainScene);
@@ -93,41 +115,48 @@ public class HotelApp extends Application {
     }
 
     private void addTitle(BorderPane border) {
-        Text scenetitle = new Text("Hyatt Regency");
+        Text scenetitle = new Text("The Peninsula Chicago");
         scenetitle.setFont(Font.font("Hack", FontWeight.BOLD, 28));
-        scenetitle.setStyle("-fx-padding: 100px;");
         border.setTop(scenetitle);
+        BorderPane.setMargin(scenetitle, new Insets(15, 0, 15, 0));
         border.setAlignment(scenetitle, Pos.CENTER);
     }
 
-    private void addSideMenu(BorderPane border, Stage stage, Map map) {
+    private void addSideMenu(BorderPane border, Scene scene, Map map) {
         VBox menuBar = new VBox();
         menuBar.setFillWidth(true);
-        menuBar.setSpacing(10);
+        menuBar.setSpacing(5);
 
         Hyperlink toMainScene = new Hyperlink("Home");
         toMainScene.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                stage.setScene((Scene)map.get("main"));
+                scene.setRoot((Parent) map.get("main"));
             }
         });
         Hyperlink toSearchScene = new Hyperlink("Find Rooms");
         toSearchScene.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                stage.setScene((Scene)map.get("search"));
+                scene.setRoot((Parent) map.get("search"));
             }
         });
         Hyperlink toLookupScene = new Hyperlink("Lookup Room");
         toLookupScene.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                stage.setScene((Scene)map.get("lookup"));
+                scene.setRoot((Parent) map.get("lookup"));
+            }
+        });
+        Hyperlink toCheckoutScene = new Hyperlink("CheckOut");
+        toCheckoutScene.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                scene.setRoot((Parent)map.get("checkout"));
             }
         });
 
-        menuBar.getChildren().addAll(toMainScene, toSearchScene,toLookupScene);
+        menuBar.getChildren().addAll(toMainScene, toSearchScene, toLookupScene, toCheckoutScene);
         border.setLeft(menuBar);
     }
 
@@ -166,6 +195,29 @@ public class HotelApp extends Application {
         GridPane.setHalignment(submitBook, HPos.RIGHT);
     }
 
+    private void addCheckoutRoom(GridPane grid, Hotel hotel) {
+        Text checkout = new Text("Checkout");
+        checkout.setFont(Font.font("Hack", FontWeight.SEMI_BOLD, 14));
+        grid.add(checkout, 0 , 1, 2, 1);
+
+        Label roomNumberLabel = new Label("Room Number");
+        grid.add(roomNumberLabel, 0, 2);
+
+        TextField roomNumberTextField = new TextField();
+        grid.add(roomNumberTextField, 1, 2);
+
+        Button confirm = new Button("Confirm");
+        confirm.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                hotel.checkoutRoom(Integer.parseInt(roomNumberTextField.getText()));
+                System.out.println(String.format("Successfully checked out %s", roomNumberTextField.getText()));
+            }
+        });
+        grid.add(confirm, 1, 3);
+        GridPane.setHalignment(confirm, HPos.RIGHT);
+    }
+
     /**
      * Search for rooms by Type
      * @param grid - GridPane to attach to
@@ -175,6 +227,11 @@ public class HotelApp extends Application {
         Text findRooms = new Text("Find Room");
         findRooms.setFont(Font.font("Hack", FontWeight.SEMI_BOLD, 14));
         grid.add(findRooms, 0, 1, 2, 1);
+
+        Label availText = new Label("Availability");
+        Label roomType2 = new Label("Room Type");
+        grid.add(roomType2, 0, 2);
+        grid.add(availText, 0, 3);
 
         ComboBox roomTypeOptionsBox = new ComboBox();
         roomTypeOptionsBox.getItems().addAll(Room.RoomType.values());
@@ -197,17 +254,15 @@ public class HotelApp extends Application {
         grid.add(submitSearch, 1,   4);
         GridPane.setFillWidth(availBox,true);
         GridPane.setHalignment(submitSearch, HPos.RIGHT);
-
-        Label availText = new Label("Availability");
-        Label roomType2 = new Label("Room Type");
-        grid.add(roomType2, 0, 2);
-        grid.add(availText, 0, 3);
     }
 
     private void addLookupRoom(GridPane grid, Hotel hotel) {
         Text findRooms = new Text("Lookup Room");
         findRooms.setFont(Font.font("Hack", FontWeight.SEMI_BOLD, 14));
         grid.add(findRooms, 0, 1, 2, 1);
+
+        Label roomNumberLabel = new Label("Room Number");
+        grid.add(roomNumberLabel, 0, 2);
 
         TextField roomNumberField = new TextField();
         grid.add(roomNumberField, 1, 2);
@@ -222,9 +277,6 @@ public class HotelApp extends Application {
         });
         grid.add(submitLookup, 1, 3);
         GridPane.setHalignment(submitLookup, HPos.RIGHT);
-
-        Label roomNumberLabel = new Label("Room Number");
-        grid.add(roomNumberLabel, 0, 2);
     }
 
     /**
@@ -233,17 +285,26 @@ public class HotelApp extends Application {
      * @param hotel - Hotel to get rooms from
      */
     private void addFooter(BorderPane border, Hotel hotel){
-        Button getRoomBtn = new Button("Get All Rooms");
         HBox hbBtn = new HBox(10);
         hbBtn.setPadding(new Insets(15, 12, 15, 12));
-        getRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
 
+        Button getRoomBtn = new Button("List All Rooms");
+        getRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 printRooms(hotel);
             }
         });
-        hbBtn.getChildren().add(getRoomBtn);
+        Button exitBtn = new Button("Exit");
+        exitBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Platform.exit();
+                System.exit(1);
+            }
+        });
+        hbBtn.getChildren().addAll(getRoomBtn, exitBtn);
+        hbBtn.setAlignment(Pos.CENTER_RIGHT);
         border.setBottom(hbBtn);
     }
 
