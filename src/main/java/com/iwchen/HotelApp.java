@@ -10,6 +10,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
@@ -91,7 +93,13 @@ public class HotelApp extends Application {
         addSideMenu(lookupBorder, mainScene, borderMap);
         addSideMenu(checkoutBorder, mainScene, borderMap);
 
-        //Get all rooms of hotel
+        //Add Search Bar
+        addRightBar(mainBorder,peninsula);
+        addRightBar(searchBorder,peninsula);
+        addRightBar(lookupBorder,peninsula);
+        addRightBar(checkoutBorder,peninsula);
+
+        //Add Footer Menu
         addFooter(mainBorder, peninsula);
         addFooter(searchBorder, peninsula);
         addFooter(lookupBorder, peninsula);
@@ -114,6 +122,10 @@ public class HotelApp extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Add Title to each BorderPane
+     * @param border - BorderPane to add title to
+     */
     private void addTitle(BorderPane border) {
         Text scenetitle = new Text("The Peninsula Chicago");
         scenetitle.setFont(Font.font("Hack", FontWeight.BOLD, 28));
@@ -122,10 +134,17 @@ public class HotelApp extends Application {
         border.setAlignment(scenetitle, Pos.CENTER);
     }
 
+    /**
+     * Add a sidebar menu to each BorderPane
+     * @param border - BorderPane to add menu to
+     * @param scene - primary scene to switch sub-BorderPanes off of
+     * @param map - Map of BorderPanes to switch to
+     */
     private void addSideMenu(BorderPane border, Scene scene, Map map) {
         VBox menuBar = new VBox();
         menuBar.setFillWidth(true);
         menuBar.setSpacing(5);
+        menuBar.setPadding(new Insets(10));
 
         Hyperlink toMainScene = new Hyperlink("Home");
         toMainScene.setOnAction(new EventHandler<ActionEvent>() {
@@ -158,6 +177,44 @@ public class HotelApp extends Application {
 
         menuBar.getChildren().addAll(toMainScene, toSearchScene, toLookupScene, toCheckoutScene);
         border.setLeft(menuBar);
+    }
+
+    private void addRightBar(BorderPane border, Hotel hotel) {
+        VBox vbox = new VBox();
+        vbox.setSpacing(10);
+        vbox.setPadding(new Insets(10));
+
+        HBox textAndSearch = new HBox();
+        TextField roomNumberField = new TextField();
+        roomNumberField.setPromptText("Room Number");
+        roomNumberField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if(event.getCode().equals(KeyCode.ENTER)) {
+                    Room r = hotel.getRoom(Integer.parseInt(roomNumberField.getText()));
+                    System.out.println(r);
+                }
+            }
+        });
+        Button searchButton = new Button("Search");
+        searchButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Room r = hotel.getRoom(Integer.parseInt(roomNumberField.getText()));
+                System.out.println(r);
+            }
+        });
+
+        Button getRoomBtn = new Button("List All Rooms");
+        getRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                printRooms(hotel);
+            }
+        });
+        textAndSearch.getChildren().addAll(roomNumberField, searchButton);
+        vbox.getChildren().addAll(textAndSearch, getRoomBtn);
+        border.setRight(vbox);
     }
 
     /**
@@ -195,6 +252,11 @@ public class HotelApp extends Application {
         GridPane.setHalignment(submitBook, HPos.RIGHT);
     }
 
+    /**
+     * Checkout a room
+     * @param grid - GridPane to add content to
+     * @param hotel - Hotel to reference for checkout
+     */
     private void addCheckoutRoom(GridPane grid, Hotel hotel) {
         Text checkout = new Text("Checkout");
         checkout.setFont(Font.font("Hack", FontWeight.SEMI_BOLD, 14));
@@ -256,6 +318,11 @@ public class HotelApp extends Application {
         GridPane.setHalignment(submitSearch, HPos.RIGHT);
     }
 
+    /**
+     * Check status of room
+     * @param grid - GridPane to add lookup to
+     * @param hotel - Hotel to reference lookup
+     */
     private void addLookupRoom(GridPane grid, Hotel hotel) {
         Text findRooms = new Text("Lookup Room");
         findRooms.setFont(Font.font("Hack", FontWeight.SEMI_BOLD, 14));
@@ -288,13 +355,6 @@ public class HotelApp extends Application {
         HBox hbBtn = new HBox(10);
         hbBtn.setPadding(new Insets(15, 12, 15, 12));
 
-        Button getRoomBtn = new Button("List All Rooms");
-        getRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                printRooms(hotel);
-            }
-        });
         Button exitBtn = new Button("Exit");
         exitBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -303,7 +363,7 @@ public class HotelApp extends Application {
                 System.exit(1);
             }
         });
-        hbBtn.getChildren().addAll(getRoomBtn, exitBtn);
+        hbBtn.getChildren().addAll(exitBtn);
         hbBtn.setAlignment(Pos.CENTER_RIGHT);
         border.setBottom(hbBtn);
     }
